@@ -5,5 +5,5 @@ sys.path.insert(0, '/var/lib/tomcat6/webapps/hudson/jobs/rdfextras')
 
 plugin.register(
         'MySQL', store.Store,
-        'rdfextras.store.MySQL', 'MySQL')
+        'rdflib_mysql.MySQL', 'MySQL')
 
