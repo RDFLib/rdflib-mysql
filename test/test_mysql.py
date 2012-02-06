@@ -33,11 +33,11 @@ class MySQLGraphTestCase(test_graph.GraphTestCase):
     path = configString
     create = True
 
-    def testGraphValue(self):
-        raise SkipTest("Known issue.")
+    # def testGraphValue(self):
+    #     raise SkipTest("Known issue.")
 
-    def testStatementNode(self):
-        raise SkipTest("Known issue.")
+    # def testStatementNode(self):
+    #     raise SkipTest("Known issue.")
 
 class MySQLContextTestCase(test_context.ContextTestCase):
     store_name = "MySQL"
@@ -45,8 +45,8 @@ class MySQLContextTestCase(test_context.ContextTestCase):
     path = configString
     create = True
 
-    def testLenInMultipleContexts(self):
-        raise SkipTest("Known issue.")
+    # def testLenInMultipleContexts(self):
+    #     raise SkipTest("Known issue.")
 
 class MySQLStoreTests(unittest.TestCase):
     storetest = True
@@ -83,11 +83,11 @@ class MySQLStoreTests(unittest.TestCase):
                     os.remove(self.path)
 
     def test_MySQL_testN3_store(self):
-        raise SkipTest("Known issue")
+        # raise SkipTest("Known issue")
         testN3Store('MySQL',configString)
 
     def testRegex(self):
-        raise SkipTest("Known issue")
+        # raise SkipTest("Known issue")
         g = self.graph
         g.parse(data=testN3, format="n3")
         try:
