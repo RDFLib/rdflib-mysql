@@ -10,10 +10,8 @@ from rdflib import plugin
 from rdflib import URIRef, BNode, Literal, Graph
 from rdflib.store import Store
 from rdfextras.store.FOPLRelationalModel.QuadSlot import normalizeValue
-import sys
-sys.path.append('../..')
-from configstrings import mysqlconfigString as configString
-sys.path.pop()
+
+configString="user=gjh,password=50uthf0rk,host=localhost,db=test"
 
 def test_dType_encoding():
     storetest = True
