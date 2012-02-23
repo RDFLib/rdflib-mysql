@@ -1,10 +1,10 @@
 import unittest
-from tempfile import mkdtemp
-from tempfile import mkstemp
 from rdflib import BNode
 from rdflib import ConjunctiveGraph
 from rdflib import Graph
 from rdflib import URIRef
+from rdflib import plugin
+from rdflib.store import Store
 # logging.getLogger('sqlalchemy.engine').setLevel(logging.WARN)
 
 class ContextTestCase(unittest.TestCase):
@@ -23,31 +23,16 @@ class ContextTestCase(unittest.TestCase):
     c2 = URIRef(u'context-2')
 
     def setUp(self):
-        self.graph = ConjunctiveGraph(store=self.store_name)
+        store = plugin.get('MySQL',Store)(identifier="rdflib_test")
+        store.destroy(self.configString)
+        store.open(self.configString,create=True)
+        self.graph = ConjunctiveGraph(store)
         self.graph.destroy(self.path)
-        if isinstance(self.path, type(None)):
-            if self.store_name == "SQLite":
-                self.path = mkstemp(prefix='test',dir='/tmp')
-            else:
-                self.path = mkdtemp(prefix='test',dir='/tmp')
         self.graph.open(self.path, create=self.create)
 
     def tearDown(self):
         self.graph.destroy(self.path)
-        try:
-            self.graph.close()
-        except:
-            pass
-        import os
-        if hasattr(self,'path') and self.path is not None:
-            if os.path.exists(self.path):
-                if os.path.isdir(self.path):
-                    for f in os.listdir(self.path): os.unlink(self.path+'/'+f)
-                    os.rmdir(self.path)
-                elif len(self.path.split(':')) == 1:
-                    os.unlink(self.path)
-                else:
-                    os.remove(self.path)
+        self.graph.close()
 
     def get_context(self, identifier):
         assert isinstance(identifier, URIRef) or \
@@ -143,7 +128,7 @@ class ContextTestCase(unittest.TestCase):
 
         # addStuffInMultipleContexts is adding the same triple to
         # three different contexts. So it's only + 1
-        self.assertEquals(len(self.graph), oldLen + 1) 
+        self.assertEquals(len(self.graph), oldLen + 1)
 
         graph = Graph(self.graph.store, self.c1)
         self.assertEquals(len(graph), oldLen + 1)

@@ -17,7 +17,7 @@ def test_dType_encoding():
     storetest = True
     correct = normalizeValue('http://www.w3.org/2001/XMLSchema#integer', 'U')
     wrong = normalizeValue('http://www.w3.org/2001/XMLSchema#integer', 'L')
-    
+
     store = plugin.get('MySQL',Store)()
     store.destroy(configString)
     store.open(configString,create=True)
@@ -28,14 +28,15 @@ def test_dType_encoding():
     "select * from %s where data_type = '%s'"%
         (store.literalProperties, wrong))
     assert not cursor.fetchone(),"Datatype encoding bug!"
-    for suffix,(relations_only,tables) in store.viewCreationDict.items():
-        query='create view %s%s as %s'%(store._internedId,
-                                        suffix,
-        ' union all '.join([t.viewUnionSelectExpression(relations_only) 
-                            for t in tables]))
-        print "## Creating View ##\n",query
-    
+    # for suffix,(relations_only,tables) in store.viewCreationDict.items():
+    #     query='create view %s%s as %s'%(store._internedId,
+    #                                     suffix,
+    #     ' union all '.join([t.viewUnionSelectExpression(relations_only)
+    #                         for t in tables]))
+    #     # print "## Creating View ##\n",query
+
     store.rollback()
+    store.destroy(configString)
     store.close()
 
 test_dType_encoding.non_core = True

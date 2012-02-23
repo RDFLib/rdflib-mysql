@@ -17,7 +17,7 @@ def testN3Store(store="default", configString=None):
     g = ConjunctiveGraph(store=store)
     if configString:
         # g.destroy(configString)
-        g.open(configString, create=True)
+        g.open(configString, create=False)
     g.parse(data=testN3, format="n3")
     # op = g.serialize(format="n3")
     # print(op)
