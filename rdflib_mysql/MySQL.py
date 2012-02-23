@@ -40,7 +40,7 @@ from rdfextras.store.FOPLRelationalModel.QuadSlot import normalizeNode
 from rdfextras.store.FOPLRelationalModel.RelationalHash import IdentifierHash
 from rdfextras.store.FOPLRelationalModel.RelationalHash import LiteralHash
 from rdfextras.store.FOPLRelationalModel.RelationalHash import GarbageCollectionQUERY
-
+# from rdflib_mysql.DatabaseStats import GetDatabaseStats, LoadCachedStats
 import time, datetime #BE: for performance logging
 import logging
 logging.basicConfig(level=logging.ERROR,format="%(message)s")
@@ -53,16 +53,16 @@ class TimeStamp(object):
     def __init__(self):
         self.start = datetime.datetime.now()
         self.checkpoint = self.start
-    
+
     def delta(self):
         logger.debug('LAST DELTA: %s' % datetime.datetime.now() - self.checkpoint)
         self.checkpoint = datetime.datetime.now()
-    
+
     def elapsed(self):
         logger.debug('ELAPSED: %s' % datetime.datetime.now() - self.start)
         self.start = datetime.datetime.now()
         self.checkpoint = self.start
-    
+
 # # Overridden rdfextras.store.AbstractSQLStore.createTerm FFR
 # def createTerm(termString, termType, store, objLanguage=None, objDatatype=None):
 #     """
@@ -200,11 +200,11 @@ def createTerm(termString, termType, store, objLanguage=None, objDatatype=None):
 #     context = rtContext is not None and rtContext or hardCodedContext.identifier
 #     termCombString = REVERSE_TERM_COMBINATIONS[termComb]
 #     subjTerm, predTerm, objTerm, ctxTerm = termCombString
-    
+
 #     s = createTerm(subject, subjTerm, store)
 #     p = createTerm(predicate, predTerm, store)
 #     o = createTerm(obj, objTerm, store, objLanguage, objDatatype)
-    
+
 #     graphKlass, idKlass = constructGraph(ctxTerm)
 #     return s, p, o, (graphKlass, idKlass, context)
 
@@ -214,11 +214,11 @@ def extractTriple(tupleRt, store, hardCodedContext=None):
     context = rtContext is not None \
                 and rtContext \
                 or hardCodedContext.identifier
-    
+
     s = createTerm(subject, sTerm, store)
     p = createTerm(predicate, pTerm, store)
     o = createTerm(obj, oTerm, store, objLanguage, objDatatype)
-    
+
     graphKlass, idKlass = constructGraph(ctxTerm)
     return s, p, o, (graphKlass, idKlass, context)
 
@@ -228,7 +228,7 @@ class _variable_cluster(object):
     A `_variable_cluster` instance represents the mapping from a single triple
     pattern to the appropriate SQL components necessary for forming a SQL
     query that incorporates the triple pattern.
-    
+
     A triple pattern can cover more than one variable, and each instance of
     this class maintains information about all the variables that are present
     in the corresponding triple pattern.  For each variable in a triple
@@ -299,19 +299,19 @@ class _variable_cluster(object):
         string by the query mechanism, in the proper order based upon
         placeholders in the query.'''
 
-    
+
     """
 
 
 
     def __init__(
-            self, component_name, db_prefix, subject, predicate, object_, 
+            self, component_name, db_prefix, subject, predicate, object_,
             context):
         '''
         Initialize a `_variable_cluster` instance based upon the syntactic parts
         of the triple pattern and additional information linking the triple
         pattern to its query context.
-        
+
         :param component_name: A name prefix used to construct the SQL phrases
         produced by this instance.  This prefix must be unique to the set of
         `_variable_cluster` instances corresponding to a complete SPARQL
@@ -326,7 +326,7 @@ class _variable_cluster(object):
         respectively.  Each of these will be RDFLib `node` objects, and at
         least one should be an RDFLib `variable`.
         '''
-        
+
         self.component_name = component_name
         self.db_prefix = db_prefix
         self.subject = subject
@@ -335,71 +335,71 @@ class _variable_cluster(object):
         self.object_ = object_
         self.object_name = 'object'
         self.context = context
-        
+
         # If the predicate of this triple pattern is `rdf:type`, then the SQL
         # table uses 'member' for the subject and 'class' for the object.
         if RDF.type == self.predicate:
             self.subject_name = 'member'
             self.object_name = 'class'
-        
+
         self.table_subset = set(['associativeBox', 'literalProperties',
                                  'relations'])
         '''Set of triple tables to query to satisfy this pattern.  This starts
         with all of them; options can be eliminated as more information is
         learned.'''
-        
+
         self.subset_name = None
         '''String indicating the base name of the table or view containing RDF
         statements that this triple pattern will reference.'''
-        
+
         self.object_may_be_literal = False
         '''This will be True if and only if it is determined that the object of
         the represented triple pattern is a variable that could resolve to a
         literal.'''
-        
+
         self.index = None
         '''The manager of this object must maintain a list of all
         `_variable_cluster` instances that contain variables.  Once the manager
         processes this `_variable_cluster` in context, this variable contains
         the index of this object within that list.'''
-        
+
         self.non_object_columns = []
         '''SQL column phrases that are not relevant to the object of the triple
         pattern that this object represents.'''
-        
+
         self.object_columns = []
         '''SQL column phrases that are relevant to the object of the triple
         pattern that this object represents.'''
-        
+
         self.join_fragment_template = (
           '%s_%%s as %s_statements' % (self.db_prefix, self.component_name,))
         '''Template for the SQL phrase that defines a table to use for the
         triple pattern that this object represents in the "from" clause of the
         full SQL query.'''
-        
+
         self.join_fragment = None
         '''SQL phrase that defines the table to use for the triple pattern that
         this object represents in the "from" clause of the full SQL query.'''
-        
+
         self.where_fragments = []
         '''SQL condition phrases that will be conjunctively joined together in
         the "where" clause of the full SQL query.'''
-        
+
         self.definitions = {}
         '''Map from variable name managed by this object to the full column
         reference that represents that variable.'''
-        
+
         self.variable_columns = []
         '''List of 4-tuples consisting of the names of the variables managed by
         this instance, the column reference that represents the variable, a flag
         that is True if and only if the variable corresponds to the object of
         the triple pattern, and a reference to this object.'''
-        
+
         self.substitutions = []
         '''List of all the static data that must be substituted into the query
         string by the query mechanism, in the proper order based upon
         placeholders in the query.'''
-    
+
     def determine_initial_subset(self, store):
         '''
         Determine the most specific RDF statement subset that this triple
@@ -409,16 +409,16 @@ class _variable_cluster(object):
         specific subsets (SQL tables such as the 'relations' table) are very
         efficient but general subsets (SQL views such as the
         'URI_or_literal_objects' view) are very inefficient.
-        
+
         :Parameters:
         - `store`: RDFLib SQL store containing the target data.
-        
+
         '''
-        
+
         if isinstance(self.subject, Literal):
             raise ValueError(
                 'A subject cannot be a literal.')
-        
+
         if isinstance(self.predicate, URIRef):
             # This is a good case, performance-wise, as we can be much more
             # specific about the subset that we use when we have a non-variable
@@ -443,7 +443,7 @@ class _variable_cluster(object):
             else:
                 self.subset_name = "relations"
                 self.table_subset = set([self.subset_name])
-        
+
         elif isinstance(self.predicate, Variable):
             if isinstance(self.object_, Literal):
                 self.subset_name = "literalProperties"
@@ -453,16 +453,16 @@ class _variable_cluster(object):
                 self.table_subset.remove('literalProperties')
             else:
                 self.subset_name = "all"
-        
+
         else:
             raise ValueError(
                 'Each predicate must either a URIRef or a Variable.')
-        
+
         # Once we know the initial subset to use, we can construct the join
         # fragment that this object will provide.
         self.join_fragment = (self.db_prefix + '_' + self.subset_name +
             ' as %s_statements' % (self.component_name,))
-    
+
     def note_object_is_named(self):
         '''
         Note new information indicating that the object variable cannot be a
@@ -474,68 +474,68 @@ class _variable_cluster(object):
         reference should call this method on the manager of the initial variable
         reference.
         '''
-        
+
         if self.object_may_be_literal:
             self.object_may_be_literal = False
-            
+
             if 'URI_or_literal_object' == self.subset_name:
                 self.subset_name = 'relations'
                 self.table_subset = set([self.subset_name])
                 self.join_fragment = (self.db_prefix + '_' + self.subset_name +
                     ' as %s_statements' % (self.component_name,))
-            
+
             column_name = self.component_name + '_object'
             self.object_columns = ['%s_statements.%s as %s' %
                 (self.component_name, self.object_name, column_name)]
-    
+
     def get_SQL_clause(self):
         return '     ' + self.join_fragment
-    
+
     def process_variable(self, variable, variable_bindings, role):
         '''
         Set up the state for managing one variable for the current triple
         pattern.    This method does not currently support object variables, as
         they present a sufficiently different case that they should be handled
         manually.
-        
+
         :Parameters:
         - `variable`: The variable to manage.
         - `variable_bindings`: A map of previously existing variables.
         - `role`: String indicating the role that this variable plays in the
              managed triple pattern.    This should be one of 'subject', 'predicate',
              or 'context'.
-        
+
         Returns a list containing the new variable name and manager tuple, or an
         empty list if this is a previously seen variable.
-        
+
         This is a private method.
         '''
-        
+
         if 'object' == role:
             raise ValueError(
                 '`process_variable` cannot current handle object variables.    ' +
                 'Please deal with them manually.')
-        
+
         variable_name = str(variable)
-        
+
         if 'subject' == role:
             statements_column = self.subject_name
         elif 'object' == role:
             statements_column = self.object_name
         else:
             statements_column = role
-        
+
         if variable_name in variable_bindings:
             # Since the variable name was already seen, link the current occurance
             # of the variable to the initial occurance using a predicate in the
             # SQL 'where' phrase.
-            
+
             initial_reference = variable_bindings[variable_name]
-            
+
             self.where_fragments.append('%s_statements.%s = %s' % (
                 self.component_name, statements_column,
                 initial_reference.definitions[variable_name]))
-            
+
             # Also, if the initial occurance of the variable was in the object
             # role and this occurance is not in the object role, then the variable
             # cannot refer to a literal, so communicate this to the manager of the
@@ -543,12 +543,12 @@ class _variable_cluster(object):
             if initial_reference.definitions[variable_name].split(
                     '.')[1] == 'object' and 'object' != role:
                 initial_reference.note_object_is_named()
-            
+
             return []
         else:
             # Note that this is the first occurance of the variable; this includes
             # adding appropriate SQL phrases that bind to this variable.
-            
+
             defining_reference = self.component_name + "_statements.%s" % (statements_column,)
             self.definitions[variable_name] = defining_reference
             column_name = self.component_name + '_' + role
@@ -556,40 +556,40 @@ class _variable_cluster(object):
                 defining_reference, column_name))
             self.non_object_columns.append('%s_term as %s_term' % (
                 defining_reference, column_name))
-            
+
             self.variable_columns.append((variable_name, column_name, False, self))
             return [(variable_name, self)]
-    
+
     def make_SQL_components(
                 self, variable_bindings, variable_clusters,useSignedInts):
         '''
         Process all the terms from the managed RDF triple pattern in the
         appropriate context.
-        
+
         :Parameters:
         - `variable_bindings`: Map of existing variable bindings.    It is crucial
              that the caller updates this map after each triple pattern is
              processed.
         - `variable_clusters`: List of existing `_variable_cluster` objects that
              manage variables.
-        
+
         Returns a list of 2-tuples consisting of newly managed variables and a
         reference to this object (which may be empty if there are no new
         variables in this triple pattern).
-        
+
         '''
-        
+
         if self.index is not None:
             raise ValueError('`make_SQL_components` should only be run once per '
                 + '`_variable_cluster` instance.')
-        
+
         self.index = len(variable_clusters)
         local_binding_list = []
-        
+
         # First, process subject, predicate, and context from the managed triple
         # pattern, as they are all similar cases in that they cannot be
         # literals.
-        
+
         if isinstance(self.subject, Variable):
             local_binding_list.extend(
                 self.process_variable(
@@ -601,7 +601,7 @@ class _variable_cluster(object):
                     normalizeNode(self.subject, useSignedInts))
         else:
             raise ValueError('The subject of a triple pattern cannot be a literal.')
-        
+
         if isinstance(self.predicate, Variable):
             local_binding_list.extend(
                 self.process_variable(
@@ -611,7 +611,7 @@ class _variable_cluster(object):
                 (self.component_name,))
             self.substitutions.append(
                     normalizeNode(self.predicate, useSignedInts))
-        
+
         if isinstance(self.context, Variable):
             local_binding_list.extend(
                 self.process_variable(
@@ -622,20 +622,20 @@ class _variable_cluster(object):
                 (self.component_name,))
             self.substitutions.append(
                     normalizeNode(self.context, useSignedInts))
-        
+
         # Process the object of the triple pattern manually, as it could be a
         # literal and so requires special handling to query properly.
-        
+
         if isinstance(self.object_, Variable):
             variable_name = str(self.object_)
-            
+
             if variable_name in variable_bindings:
                 initial_reference = variable_bindings[variable_name]
-                
+
                 self.where_fragments.append('%s_statements.%s = %s' % (
                     self.component_name, self.object_name,
                     initial_reference.definitions[variable_name]))
-                
+
                 if 'URI_or_literal_object' == self.subset_name:
                     self.subset_name = 'relations'
                     self.join_fragment = (
@@ -645,18 +645,18 @@ class _variable_cluster(object):
                 defining_reference = self.component_name + "_statements.%s" % (
                                                                 self.object_name,)
                 self.definitions[variable_name] = defining_reference
-                
+
                 column_name = self.component_name + '_object'
-                
+
                 if 'URI_or_literal_object' == self.subset_name:
                     self.object_may_be_literal = True
-                
+
                 if 'literalProperties' != self.subset_name:
                     self.non_object_columns.append('%s_statements.%s_term as %s_term'
                         % (self.component_name, self.object_name, column_name))
                 else:
                     self.non_object_columns.append("'L' as %s_term" % (column_name,))
-                
+
                 self.object_columns.append('%s as %s' %
                     (defining_reference, column_name))
                 if not('relations' == self.subset_name or
@@ -665,16 +665,16 @@ class _variable_cluster(object):
                         (self.component_name, column_name))
                     self.object_columns.append('%s_statements.language as %s_language' %
                         (self.component_name, column_name))
-                
+
                 self.variable_columns.append((variable_name, column_name, True, self))
                 local_binding_list.append((variable_name, self))
         else:
             self.where_fragments.append('%s_statements.%s = %%s' %
                 (self.component_name, self.object_name,))
             self.substitutions.append(normalizeNode(self.object_, useSignedInts))
-        
+
         return local_binding_list
-    
+
 
 class SQL(Store):
     """
@@ -699,17 +699,18 @@ class SQL(Store):
         self.debug = debug
         if debug:
             self.timestamp = TimeStamp()
-        
+
         #BE: performance logging
         self.perfLog = perfLog
         if self.perfLog:
             self.resetPerfLog()
-        
-        self.identifier = identifier and identifier or 'hardcoded'
-        
+
+        self.identifier = identifier and identifier or 'rdflib_test'
+
         #Use only the first 10 bytes of the digest
-        self._internedId = INTERNED_PREFIX + sha1(self.identifier).hexdigest()[:10]
-        
+        self._internedId = INTERNED_PREFIX + sha1(
+            self.identifier.encode('utf-8')).hexdigest()[:10]
+
         self.engine = engine
         self.showDBsCommand = 'SHOW DATABASES'
         self.findTablesCommand = "SHOW TABLES LIKE '%s'"
@@ -720,10 +721,10 @@ class SQL(Store):
         self.default_port = 3306
         self.select_modifier = 'straight_join'
         self.can_cast_bigint = False
-        
+
         self.INDEX_NS_BINDS_TABLE = \
             'CREATE INDEX uri_index on %s_namespace_binds (uri(100))'
-        
+
         #Setup FOPL RelationalModel objects
         self.useSignedInts = useSignedInts
         # TODO: derive this from `self.useSignedInts`?
@@ -741,7 +742,7 @@ class SQL(Store):
         self.aboxAssertions = AssociativeBox(
             self._internedId, self.idHash, self.valueHash, self,
             self.useSignedInts, self.hashFieldType, self.engine, declareEnums)
-        
+
         self.tables = [
                        self.binaryRelations,
                        self.literalProperties,
@@ -758,7 +759,7 @@ class SQL(Store):
                        ]
         self.hashes = [self.idHash,self.valueHash]
         self.partitions = [self.literalProperties,self.binaryRelations,self.aboxAssertions,]
-        
+
         #This is a dictionary which caputures the relationships between
         #the each view, it's prefix, the arguments to viewUnionSelectExpression
         #and the tables involved
@@ -770,7 +771,7 @@ class SQL(Store):
                                                   self.aboxAssertions]),
             '_all_objects'               : (False,self.hashes)
         }
-        
+
         #This parameter controls how exlusively the literal table is searched
         #If true, the Literal partition is searched *exclusively* if the object term
         #in a triple pattern is a Literal or a REGEXTerm.  Note, the latter case
@@ -784,23 +785,23 @@ class SQL(Store):
         if configuration is not None:
             #self.open(configuration)
             self._set_connection_parameters(configuration=configuration)
-        
-        
+
+
         self.cacheHits = 0
         self.cacheMisses = 0
-        
+
         self.literalCache = {}
         self.uriCache = {}
         self.bnodeCache = {}
         self.otherCache = {}
-        
+
         self.literal_properties = set()
         '''set of URIRefs of those RDF properties which are known to range
         over literals.'''
         self.resource_properties = set()
         '''set of URIRefs of those RDF properties which are known to range
         over resources.'''
-        
+
         #update the two sets above with defaults
         if False: # TODO: Update this to reflect the new namespace layout
             self.literal_properties.update(OWL.literalProperties)
@@ -809,9 +810,9 @@ class SQL(Store):
             self.resource_properties.update(OWL.resourceProperties)
             self.resource_properties.update(RDF.resourceProperties)
             self.resource_properties.update(RDFS.resourceProperties)
-        
+
         self.length = None
-    
+
     def scanProperties(self):
         """
         Via introspection, update the set of literal and resource properties
@@ -820,14 +821,14 @@ class SQL(Store):
         litTable   = self.literalProperties
         relTable   = self.binaryRelations
         idObjTable = self.idHash
-        
+
         #@todo: perhaps these column names should not be hard-coded?
         idField = "id"
         lexField = "lexical"
-        
+
         cursor = self._db.cursor()
-        
-        # @@FIXME: unused code ... 
+
+        # @@FIXME: unused code ...
         # litProps = set()
         cursor.execute("""
             SELECT DISTINCT i.%s AS pred
@@ -835,8 +836,8 @@ class SQL(Store):
             (lexField, litTable, idObjTable, litTable.columnNames[PREDICATE], idField))
         for (pred,) in cursor.fetchall():
             self.literal_properties.add(pred)
-        
-        # @@FIXME: unused code ... 
+
+        # @@FIXME: unused code ...
         # resProps = set()
         cursor.execute("""
             SELECT DISTINCT i.%s AS pred
@@ -844,7 +845,7 @@ class SQL(Store):
             (lexField, relTable, idObjTable, relTable.columnNames[PREDICATE], idField))
         for (pred,) in cursor.fetchall():
             self.resource_properties.add(pred)
-    
+
     def resetPerfLog(self, clearCache=False): #BE: for performance logging
         self.mainQueryCount = 0
         self.mainQueryTime = 0
@@ -856,7 +857,7 @@ class SQL(Store):
         if clearCache:
             c=self._db.cursor()
             self.executeSQL(c, "RESET QUERY CACHE")
-    
+
     def getPerfLog(self): #BE: for performance logging
         if self.perfLog:
             return dict(mainQueryCount=self.mainQueryCount,
@@ -865,7 +866,7 @@ class SQL(Store):
                         rowPrepQueryTime=self.rowPrepQueryTime,
                         sqlQueries=self.mainQueries)
         return dict();
-    
+
     def log_statement(self, statement):
         if self.debug:
             self.timestamp.delta()
@@ -874,7 +875,7 @@ class SQL(Store):
                 self.statement_log.write(statement + "\n")
             except Exception:
                 pass
-    
+
     def executeSQL(self,cursor,qStr,params=None,paramList=False):
         """
         Overridden in order to pass params seperate from query for the
@@ -889,14 +890,14 @@ class SQL(Store):
             cursor.executemany(qStr,[tuple(item) for item in params])
         else:
             cursor.execute(qStr,tuple(params))
-    
+
     def note_modified(self):
         """Indicate that the triples in this store have been modified.  This
         should be called after any operation that could add or remove
         triples in the store."""
-        
+
         self.length = None
-    
+
     def _dbState(self, db):
         c = db.cursor()
         self.log_statement(self.showDBsCommand)
@@ -918,7 +919,7 @@ class SQL(Store):
             return VALID_STORE
         #The database doesn't exist - nothing is there
         return NO_STORE
-    
+
     def _createViews(self,cursor):
         """
         Helper function for creating views
@@ -931,7 +932,7 @@ class SQL(Store):
             if self.debug:
                 logger.debug("## Creating View ##\n%s" % query)
             self.executeSQL(cursor, query)
-    
+
     def _parse_configuration_string(self, config_string):
         """
         Parses a configuration string in the form:
@@ -947,7 +948,7 @@ class SQL(Store):
         for part in config_string.split(','):
             assignment = part.split('=')
             kvDict[assignment[0]] = assignment[-1]
-        
+
         for requiredKey in ['user', 'db', 'host']:
             assert requiredKey in kvDict
         if 'port' not in kvDict:
@@ -955,7 +956,7 @@ class SQL(Store):
         if 'password' not in kvDict:
             kvDict['password'] = ''
         return kvDict
-    
+
     def _set_connection_parameters(
                     self, db=None, user=None, passwd=None,
                     port=None, host=None, configuration=None):
@@ -964,13 +965,13 @@ class SQL(Store):
         else:
             self.config = dict(user=user, db=db, host=host, port=port,
                                password=passwd)
-    
+
     def _connect(self, db=None):
         raise NotImplementedError('SQL is an abstract base class.')
-    
+
     def _set_db(self, db):
         self._db = db
-    
+
     #Database Management Methods
     def create(self, configuration=None, populate=True):
         if configuration is not None:
@@ -979,13 +980,18 @@ class SQL(Store):
         c = test_db.cursor()
         self.executeSQL(c, 'COMMIT')
         self.executeSQL(c, self.showDBsCommand)
-        if not (self.config['db'].encode('utf-8'),) in [
-                tuple(item) for item in c.fetchall()]:
-            logger.debug("creating %s (doesn't exist)" % (self.config['db']))
-            self.executeSQL(c, "CREATE DATABASE %s" % (self.config['db'],))
+        existing_dbs = c.fetchall()
+        logger.debug("checking %s in %s" % (self.config, existing_dbs))
+        try:
+            if not (self.config['db'].encode('utf-8'),) in [
+                    tuple(item) for item in existing_dbs]:
+                logger.debug("creating %s (doesn't exist)" % (self.config['db']))
+                self.executeSQL(c, "CREATE DATABASE %s" % (self.config['db'],))
+        except:
+            pass
         c.close()
         test_db.close()
-        
+
         db = self._connect()
         c = db.cursor()
         self.executeSQL(c, 'COMMIT')
@@ -996,7 +1002,7 @@ class SQL(Store):
         for kb in self.createTables:
             for statement in kb.createStatements():
                 self.executeSQL(c, statement)
-            
+
             if populate:
                 for statement in kb.defaultStatements():
                     self.executeSQL(c, statement)
@@ -1004,31 +1010,31 @@ class SQL(Store):
         self.executeSQL(c, 'COMMIT')
         c.close()
         self._set_db(db)
-    
+
     def applyIndices(self):
         c = self._db.cursor()
         for kb in self.createTables:
             for statement in kb.indexingStatements():
                 self.executeSQL(c, statement)
-    
+
     def removeIndices(self):
         c = self._db.cursor()
         for kb in self.createTables:
             for statement in kb.removeIndexingStatements():
                 self.executeSQL(c, statement)
-    
+
     def applyForeignKeys(self):
         c = self._db.cursor()
         for kb in self.createTables:
             for statement in kb.foreignKeyStatements():
                 self.executeSQL(c, statement)
-    
+
     def removeForeignKeys(self):
         c = self._db.cursor()
         for kb in self.createTables:
             for statement in kb.removeForeignKeyStatements():
                 self.executeSQL(c, statement)
-    
+
     def open(self, configuration=None, create=False):
         """
         Opens the store specified by the configuration string. If
@@ -1065,7 +1071,7 @@ class SQL(Store):
                     if rt:
                         existingViews.append(view)
                 c.close()
-                
+
                 if self.scanForDatatypes:
                     cursor = _db.cursor()
                     cursor.execute("""
@@ -1100,21 +1106,21 @@ class SQL(Store):
         c = self._db.cursor()
         self.executeSQL(c, 'COMMIT')
         #self._db.autocommit(False)
-        
+
         #Manage triple pattern statistics
-        self.stats = None
-        statsFName = self.config.get('sparqlStatsFile')
-        if statsFName:
-            self.stats = LoadCachedStats(statsFName)
-            if not self.stats:
-                #Need to generate DB statistics for SPARQL
-                self.stats = GetDatabaseStats(self)
-                f = open(statsFName, 'w')
-                cPickle.dump(version, f)
-                cPickle.dump(self.stats, f)
-                f.close()
+        # self.stats = None
+        # statsFName = self.config.get('sparqlStatsFile')
+        # if statsFName:
+        #     self.stats = LoadCachedStats(statsFName)
+        #     if not self.stats:
+        #         #Need to generate DB statistics for SPARQL
+        #         self.stats = GetDatabaseStats(self)
+        #         f = open(statsFName, 'w')
+        #         cPickle.dump(version, f)
+        #         cPickle.dump(self.stats, f)
+        #         f.close()
         return self._dbState(self._db)
-    
+
     def destroy(self, configuration=None):
         """
         FIXME: Add documentation
@@ -1126,7 +1132,7 @@ class SQL(Store):
         c = db.cursor()
         self.executeSQL(c, 'COMMIT')
         self.executeSQL(c, 'START TRANSACTION')
-        
+
         for suffix in self.viewCreationDict:
             view = self._internedId+suffix
             try:
@@ -1134,7 +1140,7 @@ class SQL(Store):
             except Exception, e:
                 logger.debug("unable to drop table: %s" % view)
                 logger.debug("%s" % e)
-        
+
         for tbl in self.tables + ["%s_namespace_binds" % self._internedId]:
             try:
                 self.executeSQL(c, 'DROP table %s' % (tbl,))
@@ -1142,7 +1148,7 @@ class SQL(Store):
             except Exception, e:
                 logger.debug("unable to drop table: %s" % tbl)
                 logger.debug("%s" % e)
-        
+
         for tbl in self.tables + ["%s_namespace_binds" % self._internedId]:
             try:
                 self.executeSQL(c, 'DROP table %s' % (tbl,))
@@ -1150,15 +1156,15 @@ class SQL(Store):
             except Exception, e:
                 logger.debug("unable to drop table: %s" % tbl)
                 logger.debug("%s" % e)
-        
-        # Note, this only removes the associated tables for the closed 
+
+        # Note, this only removes the associated tables for the closed
         # world universe given by the identifier
         logger.warn("Destroyed Close World Universe %s id:%s (in SQL database %s)" % (
             self.identifier, self._internedId, self.config['db']))
         self.executeSQL(c, 'COMMIT')
         db.close()
         self.note_modified()
-    
+
     def batch_unify(self, patterns):
         """
         Perform RDF triple store-level unification of a list of triple
@@ -1167,26 +1173,26 @@ class SQL(Store):
         backend, this method compiles the list of triple patterns into SQL
         statements that obtain bindings for all the variables in the list of
         triples patterns.
-        
+
         :Parameters:
         - `patterns`: a list of 4-item tuples where any of the items can be
              one of: Variable, URIRef, BNode, or Literal.
-        
+
         Returns a generator over dictionaries of solutions to the list of
         triple patterns.    Each dictionary binds the variables in the triple
         patterns to the correct values for those variables.
-        
+
         For more on unification see:
         http://en.wikipedia.org/wiki/Unification
         """
-        
+
         variable_bindings = {}
         variable_clusters = []
-        
+
         #BE: this appears to be project-specific and shouldn't be hardcoded here
         filterNS = 'tag:info@semanticdb.ccf.org,2008:FilterTerms#'
         filter_patterns = []
-        
+
         # Unpack each triple pattern, and for each pattern, create a
         # variable cluster for managing the variables in that triple
         # pattern.
@@ -1196,10 +1202,10 @@ class SQL(Store):
                 URIRef(filterNS + 'dateBefore') == predicate):
                 filter_patterns.append((subject, predicate, object_, context))
                 continue
-            
+
             component_name = "component_" + str(index)
             index = index + 1
-            
+
             cluster = _variable_cluster(
                 component_name, self._internedId,
                 subject, predicate, object_, context)
@@ -1208,16 +1214,16 @@ class SQL(Store):
                 variable_bindings, variable_clusters, self.useSignedInts)
             variable_bindings.update(bindings)
             variable_clusters.append(cluster)
-        
+
         #BE: disabled this debug printing
         #print >> sys.stderr, filter_patterns
-        
+
         from_fragments = []
         where_fragments = []
         columns = []
         substitutions = []
         variable_columns = []
-        
+
         # Consolidate the various SQL fragments from each variable cluster.
         for cluster in variable_clusters:
             from_fragments.append(cluster.get_SQL_clause())
@@ -1226,10 +1232,10 @@ class SQL(Store):
             columns.extend(cluster.object_columns)
             substitutions.extend(cluster.substitutions)
             variable_columns.extend(cluster.variable_columns)
-        
+
         if len(variable_columns) < 1:
             return
-        
+
         index = 0
         for subject, predicate, object_, context in filter_patterns:
             table_alias = 'filter_literals_' + str(index)
@@ -1238,7 +1244,7 @@ class SQL(Store):
                 self._internedId + '_literals as ' + table_alias)
             cluster = variable_bindings[str(subject)]
             column_name = cluster.definitions[str(subject)]
-            
+
             where_fragments.append(table_alias + '.id = ' + column_name)
             if URIRef(filterNS + 'dateAfter') == predicate:
                 where_fragments.append(
@@ -1246,54 +1252,54 @@ class SQL(Store):
             elif URIRef(filterNS + 'dateBefore') == predicate:
                 where_fragments.append(
                     table_alias + '.lexical < "' + self.EscapeQuotes(str(object_)) + '"')
-        
+
         # Construct and execute the SQL query.
         columns_fragment = ', '.join(columns)
         from_fragment = '\ncross join\n '.join(from_fragments)
         where_fragment = ' and '.join(where_fragments)
         if len(where_fragment) > 0:
             where_fragment = '\nwhere\n' + where_fragment
-        
+
         query = "select %s\n%s\nfrom\n%s%s\n" % (
             self.select_modifier, columns_fragment, from_fragment,
             where_fragment)
-        
+
         if self.debug:
             logger.debug("%s %s" % (query, substitutions))
-        
+
         if self.perfLog: #BE: performance logging
             self.mainQueryCount += 1
             self.mainQueries.append(query % tuple(substitutions))
             startTime = time.time()
-        
+
         cursor = self._db.cursor()
         cursor.execute(query, substitutions)
-        
+
         if self.perfLog: #BE: performance logging
             self.mainQueryTime += time.time()-startTime
-        
+
         preparation_cursor = self._db.cursor()
-        
+
         #print "JLC; Description:", cursor.description
-        
+
         def prepare_row(row):
             '''
             Convert a single row from the results of the big SPARQL solution
             query to a map from query variables to lexical values.
-            
+
             :Parameters:
             - `row`: The return value of `fetchone()` on an DBAPI cursor
              object after executing the SPARQL solving SQL query.
-            
+
             Returns a dictionary from SPARQL variable names to one set of
             correct values for the original list of SPARQL triple patterns.
             '''
-            
+
             # First, turn the list into a map from column names to values.
             row_map = dict(zip(
-                    [description[0] for description in cursor.description], 
+                    [description[0] for description in cursor.description],
                     row))
-            
+
             # As the values are all integers, we must execute another SQL
             # query to map the integers to their lexical values.    This query
             # is straightforward to build, so we can do it here instead of in
@@ -1306,10 +1312,10 @@ class SQL(Store):
             for varname, column_name, is_object, cluster in variable_columns:
                 component_name = "component_" + str(len(from_fragments))
                 columns.append(component_name + ".lexical as " + column_name)
-                
+
                 where_fragments.append(component_name + '.id = %s')
                 substitutions.append(row_map[column_name])
-                
+
                 term = row_map[column_name + '_term']
                 if 'L' == term:
                     from_fragments.append('%s_literals as %s' %
@@ -1325,26 +1331,26 @@ class SQL(Store):
                 else:
                     from_fragments.append('%s_identifiers as %s' %
                                             (prefix, component_name))
-            
+
             query = ('select\n%s\nfrom\n%s\nwhere\n%s\n' %
                 (', '.join(columns), ',\n'.join(from_fragments),
                  ' and '.join(where_fragments)))
             if self.debug:
                 logger.debug("%s %s" % (query, substitutions))
-            
+
             if self.perfLog: #BE: performance logging
                 self.rowPrepQueryCount += 1
                 startTime = time.time()
-            
+
             preparation_cursor.execute(query, substitutions)
-            
+
             if self.perfLog: #BE: performance logging
                 self.rowPrepQueryTime += time.time()-startTime
-            
+
             prepared_map = dict(zip(
                 [description[0] for description in preparation_cursor.description],
             preparation_cursor.fetchone()))
-            
+
             # Unwrap the elements of `variable_columns`, which provide the
             # original SPARQL variable names and the corresponding SQL column
             # names and management information.    Then map these SPARQL
@@ -1355,7 +1361,7 @@ class SQL(Store):
                 aVariable = Variable(varname)
                 lexical = prepared_map[column_name]
                 term = row_map[column_name + '_term']
-            
+
                 if 'L' == term:
                     datatype = prepared_map.get(column_name + '_datatype', None)
                     if datatype:
@@ -1368,11 +1374,11 @@ class SQL(Store):
                     node = URIRef(lexical)
                 else:
                     raise ValueError('Unknown term type ' + term)
-                
+
                 new_row[aVariable] = node
-            
+
             return new_row
-        
+
         # Grab a row from the big solving query, process it, and yield the
         # result, until there are no more results.
         row = cursor.fetchone()
@@ -1380,18 +1386,18 @@ class SQL(Store):
             new_row = prepare_row(row)
             #print row, new_row
             yield new_row
-            
+
             row = cursor.fetchone()
-    
+
     #Transactional interfaces
     def commit(self):
         """ """
         self._db.commit()
-    
+
     def rollback(self):
         """ """
         self._db.rollback()
-    
+
     def gc(self):
         """
         Purges unreferenced identifiers / values - expensive
@@ -1403,10 +1409,10 @@ class SQL(Store):
                                                self.binaryRelations,
                                                self.aboxAssertions,
                                                self.literalProperties)
-        
+
         for q in purgeQueries:
             self.executeSQL(c,q)
-    
+
     def get_table(self, triple):
         subject, predicate, obj = triple
         if predicate == RDF.type:
@@ -1416,7 +1422,7 @@ class SQL(Store):
         else:
             kb = self.binaryRelations
         return kb
-    
+
     def add(self, (subject, predicate, obj), context=None, quoted=False):
         """ Add a triple to the store of triples. """
         qSlots = genQuadSlots([subject, predicate, obj, context],
@@ -1428,7 +1434,7 @@ class SQL(Store):
         except Exception, e:
             logger.warn("Flush insertions raised exception %s" % e)
         self.note_modified()
-    
+
     def addN(self, quads):
         """
         Adds each item in the list of statements to a specific context. The quoted argument
@@ -1440,15 +1446,15 @@ class SQL(Store):
                 "Context associated with %s %s %s is None!" % (s, p, o)
             qSlots = genQuadSlots([s, p, o, c],
                                   self.useSignedInts)
-            
+
             kb = self.get_table((s, p, o))
             kb.insertRelations([qSlots])
-        
+
         for kb in self.partitions:
             if kb.pendingInsertions:
                 kb.flushInsertions(self._db)
         self.note_modified()
-    
+
     def remove(self, (subject, predicate, obj), context):
         """ Remove a triple from the store """
         targetBRPs = BinaryRelationPartitionCoverage(
@@ -1461,10 +1467,10 @@ class SQL(Store):
             whereClause, whereParameters = brp.generateWhereClause(
                     (subject, predicate, obj, context))
             self.executeSQL(c, query + whereClause, params=whereParameters)
-        
+
         c.close()
         self.note_modified()
-    
+
     def triples(self, (subject, predicate, obj), context=None):
         c = self._db.cursor()
         if context is None or isinstance(context.identifier, REGEXTerm):
@@ -1495,10 +1501,10 @@ class SQL(Store):
                     rt = next = c.fetchone()
                     sameTriple = next and extractTriple(
                             next, self, context)[:3] == (s, p, o)
-            
+
             yield (s, p, o),(con for con in contexts)
         c.close()
-    
+
     def triples_choices(self, (subject, predicate, object_), context=None):
         """
         A variant of triples that can take a list of terms instead of a single
@@ -1513,29 +1519,29 @@ class SQL(Store):
                 object_ = None
             for (s1, p1, o1), cg in self.triples((subject,predicate,object_),context):
                 yield (s1, p1, o1), cg
-        
+
         elif isinstance(subject,list):
             assert not isinstance(predicate,list), "subject / predicate are both lists"
             if not subject:
                 subject = None
             for (s1, p1, o1), cg in self.triples((subject,predicate,object_),context):
                 yield (s1, p1, o1), cg
-        
+
         elif isinstance(predicate,list):
             assert not isinstance(subject,list), "predicate / subject are both lists"
             if not predicate:
                 predicate = None
             for (s1, p1, o1), cg in self.triples((subject,predicate,object_),context):
                 yield (s1, p1, o1), cg
-    
+
     def get_summary(self):
         c=self._db.cursor()
-        
+
         rtDict = {}
         countRows = "select count(*) from %s"
         countContexts = "select DISTINCT %s from %s"
         unionSelect = ' union '.join(
-            [countContexts % (part.columnNames[CONTEXT], str(part)) 
+            [countContexts % (part.columnNames[CONTEXT], str(part))
                                             for part in self.partitions])
         self.executeSQL(c,unionSelect)
         ctxCount = len(c.fetchall())
@@ -1549,7 +1555,7 @@ class SQL(Store):
             rtDict[str(self.literalProperties)],
             rtDict[str(self.binaryRelations)],
         )
-    
+
     def __len__(self, context=None):
         if self.length is not None:
             return self.length
@@ -1568,7 +1574,7 @@ class SQL(Store):
             rows.append(rowCount)
         self.length = reduce(lambda x,y: x + y, rows)
         return self.length
-    
+
     def contexts(self, triple=None):
         c = self._db.cursor()
         if triple:
@@ -1587,7 +1593,7 @@ class SQL(Store):
                 yield graphKlass(self,idKlass(contextId))
                 fetchedGraphNames.append(contextId)
             rt = c.fetchone()
-    
+
     #Namespace persistence interface implementation
     def bind(self, prefix, namespace):
         """ """
@@ -1603,11 +1609,11 @@ class SQL(Store):
         except:
             pass
         c.close()
-    
+
     def prefix(self, namespace):
         """ """
         c = self._db.cursor()
-        self.executeSQL(c, 
+        self.executeSQL(c,
             "select prefix from %s_namespace_binds where uri = '%s'" % (
                 self._internedId,
                 namespace)
@@ -1615,7 +1621,7 @@ class SQL(Store):
         rt = [rtTuple[0] for rtTuple in c.fetchall()]
         c.close()
         return rt and rt[0] or None
-    
+
     def namespace(self, prefix):
         """ """
         c=self._db.cursor()
@@ -1629,20 +1635,20 @@ class SQL(Store):
         rt = [rtTuple[0] for rtTuple in c.fetchall()]
         c.close()
         return rt and rt[0] or None
-    
+
     def namespaces(self):
         """ """
         c = self._db.cursor()
-        self.executeSQL(c, 
+        self.executeSQL(c,
             "select prefix, uri from %s_namespace_binds where 1;"%(
                 self._internedId
-            )   
+            )
         )
         rt = c.fetchall()
         c.close()
         for prefix,uri in rt:
             yield prefix, uri
-    
+
 
 class MySQL(SQL):
     """
@@ -1661,13 +1667,13 @@ class MySQL(SQL):
                      user=self.config['user'],
                      passwd=self.config['password'], db=db,
                      port=self.config['port'], host=self.config['host'])
-        
+
     except ImportError:
         def _connect(self, db=None):
             raise NotImplementedError(
                 'We need the MySQLdb module to connect to MySQL databases.')
-        
-    
+
+
     def _createViews(self,cursor):
         for suffix, (relations_only, tables) in self.viewCreationDict.items():
             query = ('CREATE SQL SECURITY INVOKER VIEW %s%s AS %s' %
@@ -1678,7 +1684,7 @@ class MySQL(SQL):
                 logger.debug("## Creating View ##")
                 logger.debug(query)
             self.executeSQL(cursor, query)
-    
+
 
 # TODO: break this out into a separate module, which will allow us to do
 # away with the import chicanery.
@@ -1687,7 +1693,7 @@ class PostgreSQL(SQL):
         super(PostgreSQL, self).__init__(identifier=identifier,
             configuration=None, debug=debug, engine="",
             useSignedInts=True, hashFieldType='BIGINT', declareEnums=True)
-        
+
         self.showDBsCommand = 'SELECT datname FROM pg_database'
         self.findTablesCommand = """SELECT tablename FROM pg_tables WHERE
                                     tablename = lower('%s')"""
@@ -1699,15 +1705,15 @@ class PostgreSQL(SQL):
         if configuration is not None:
             self._set_connection_parameters(configuration=configuration)
         self.select_modifier = ''
-        
+
         self.INDEX_NS_BINDS_TABLE = \
             'CREATE INDEX uri_index on %s_namespace_binds (uri)'
-    
+
     def _set_db(self, db):
         self._db = db
         #cursor = db.cursor()
         #self.executeSQL(cursor, 'SET join_collapse_limit = 1')
-    
+
     try:
         import psycopg2
         def _connect(self, db=None):
@@ -1719,7 +1725,7 @@ class PostgreSQL(SQL):
                      database=db,
                      host=self.config['host'],
                      port=self.config['port'])
-        
+
     except ImportError:
         try:
             import pgdb
@@ -1731,7 +1737,7 @@ class PostgreSQL(SQL):
                          password=self.config['password'], database=db,
                          host=self.config['host'] + ':' +
                               str(self.config['port']))
-            
+
         except ImportError:
             try:
                 from postgresql.interface.proboscis import dbapi2
@@ -1742,18 +1748,18 @@ class PostgreSQL(SQL):
                              user=self.config['user'],
                              password=self.config['password'], database=db,
                              host=self.config['host'], port=self.config['port'])
-                
+
             except ImportError:
                 def _connect(self, db=None):
                     raise NotImplementedError(
                       'We need the PyGreSQL module or the psycopg2 module to' + \
                       ' connect to PostgreSQL databases.')
-                
+
 
 if False:
     class InnoDB(MySQL):
         pass
-  
+
     class MyISAM(MySQL):
         pass
 
@@ -1762,4 +1768,4 @@ CREATE_NS_BINDS_TABLE = """
 CREATE TABLE %s_namespace_binds (
     prefix        varchar(20) UNIQUE not NULL,
     uri           text,
-    PRIMARY KEY (prefix)) %s"""        
+    PRIMARY KEY (prefix)) %s"""
