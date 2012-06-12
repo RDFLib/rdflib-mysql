@@ -5,6 +5,7 @@ from rdflib import URIRef
 from rdflib import plugin
 from rdflib.store import Store
 
+
 class GraphTestCase(unittest.TestCase):
     store_name = 'default'
     path = None
@@ -19,9 +20,9 @@ class GraphTestCase(unittest.TestCase):
     cheese = URIRef(u'cheese')
 
     def setUp(self):
-        store = plugin.get('MySQL',Store)(identifier="rdflib_test")
-        store.destroy(self.configString)
-        store.open(self.configString,create=True)
+        store = plugin.get('MySQL', Store)(identifier="rdflib_test")
+        store.destroy(self.path)
+        store.open(self.path, create=True)
         self.graph = Graph(store)
         self.graph.destroy(self.path)
         self.graph.open(self.path, create=self.create)

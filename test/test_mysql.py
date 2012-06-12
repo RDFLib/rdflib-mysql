@@ -5,12 +5,17 @@ from nose import SkipTest
 from n3_2_case import testN3Store
 from rdflib.graph import Graph
 
-mysqlconfigString="user=gjh,password=50uthf0rk,host=localhost,db=test"
+import os
+configString = "user=%s,password=%s,host=%s,db=%s" % (
+    os.environ['DBUSER'], os.environ['DBPASSWORD'],
+    os.environ['DBHOST'], os.environ['DBNAME'],
+    )
+
 
 class MySQLGraphTestCase(graph_case.GraphTestCase):
     store_name = "MySQL"
     storetest = True
-    configString = path = mysqlconfigString
+    path = configString
     create = True
     identifier = "rdflib_test"
 
@@ -20,20 +25,22 @@ class MySQLGraphTestCase(graph_case.GraphTestCase):
     def testStatementNode(self):
         raise SkipTest("Statement node not handled by AbstractSQLStore")
 
+
 class MySQLContextTestCase(context_case.ContextTestCase):
     store_name = "MySQL"
     storetest = True
-    path = configString = mysqlconfigString
+    path = configString
     create = True
     identifier = "rdflib_test"
 
     def testLenInMultipleContexts(self):
         raise SkipTest("Multiple contexts - known issue.")
 
+
 class MySQLStoreTests(unittest.TestCase):
     storetest = True
     store_name = "MySQL"
-    path = configString = mysqlconfigString
+    path = configString
     create = True
     identifier = "rdflib_test"
 
@@ -46,9 +53,10 @@ class MySQLStoreTests(unittest.TestCase):
         self.graph.destroy(self.path)
         self.graph.close()
 
-    def test_MySQL_testN3_store(self):
-        # raise SkipTest("Known issue")
-        testN3Store('MySQL',self.configString)
+
+def test_MySQL_testN3_store():
+    # raise SkipTest("Known issue")
+    testN3Store('MySQL', configString)
 
 
 MySQLGraphTestCase.storetest = True
@@ -59,4 +67,3 @@ MySQLStoreTests.storetest = True
 # nosetests --with-profile --profile-stats-file stats.pf test/test_mysql
 # Also see Tarek Ziade's gprof2dot explorations:
 # http://tarekziade.wordpress.com/2008/08/25/visual-profiling-with-nose-and-gprof2dot/
-

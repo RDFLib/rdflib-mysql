@@ -15,9 +15,9 @@ _:foo a rdfs:Class.
 def testN3Store(store="default", configString=None):
     storetest = True
     g = ConjunctiveGraph(store=store)
-    if configString:
-        # g.destroy(configString)
-        g.open(configString, create=False)
+    if configString is not None:
+        g.destroy(configString)
+        g.open(configString, create=True)
     g.parse(data=testN3, format="n3")
     # op = g.serialize(format="n3")
     # print(op)

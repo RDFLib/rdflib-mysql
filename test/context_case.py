@@ -7,6 +7,7 @@ from rdflib import plugin
 from rdflib.store import Store
 # logging.getLogger('sqlalchemy.engine').setLevel(logging.WARN)
 
+
 class ContextTestCase(unittest.TestCase):
     store_name = 'default'
     path = None
@@ -23,9 +24,9 @@ class ContextTestCase(unittest.TestCase):
     c2 = URIRef(u'context-2')
 
     def setUp(self):
-        store = plugin.get('MySQL',Store)(identifier="rdflib_test")
-        store.destroy(self.configString)
-        store.open(self.configString,create=True)
+        store = plugin.get('MySQL', Store)(identifier="rdflib_test")
+        store.destroy(self.path)
+        store.open(self.path, create=True)
         self.graph = ConjunctiveGraph(store)
         self.graph.destroy(self.path)
         self.graph.open(self.path, create=self.create)
@@ -39,6 +40,7 @@ class ContextTestCase(unittest.TestCase):
                isinstance(identifier, BNode), type(identifier)
         return Graph(store=self.graph.store, identifier=identifier,
                          namespace_manager=self)
+
     def addStuff(self):
         tarek = self.tarek
         michel = self.michel
@@ -56,7 +58,7 @@ class ContextTestCase(unittest.TestCase):
         graph.add((michel, likes, cheese))
         graph.add((bob, likes, cheese))
         graph.add((bob, hates, pizza))
-        graph.add((bob, hates, michel)) # gasp!
+        graph.add((bob, hates, michel))  # gasp!
 
     def removeStuff(self):
         tarek = self.tarek
@@ -75,12 +77,12 @@ class ContextTestCase(unittest.TestCase):
         graph.remove((michel, likes, cheese))
         graph.remove((bob, likes, cheese))
         graph.remove((bob, hates, pizza))
-        graph.remove((bob, hates, michel)) # gasp!
+        graph.remove((bob, hates, michel))  # gasp!
 
     def addStuffInMultipleContexts(self):
         c1 = self.c1
         c2 = self.c2
-        triple = (self.pizza, self.hates, self.tarek) # revenge!
+        triple = (self.pizza, self.hates, self.tarek)  # revenge!
 
         # add to default context
         self.graph.add(triple)
