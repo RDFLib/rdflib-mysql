@@ -11,10 +11,8 @@ from rdflib import URIRef, BNode, Literal, Graph
 from rdflib.store import Store
 from rdfextras.store.FOPLRelationalModel.QuadSlot import normalizeValue
 import os
-configString = "user=%s,password=%s,host=%s,db=%s" % (
-    os.environ['DBUSER'], os.environ['DBPASSWORD'],
-    os.environ['DBHOST'], os.environ['DBNAME'],
-    )
+configString = "user=%s,password=%s,host=localhost,db=test" % (
+    os.environ['DBUSER'], os.environ['DBPASSWORD'])
 
 
 def test_dType_encoding():

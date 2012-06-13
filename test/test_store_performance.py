@@ -7,10 +7,8 @@ from random import random
 from rdflib import Graph
 from rdflib import URIRef
 
-configString = "user=%s,password=%s,host=%s,db=%s" % (
-    os.environ['DBUSER'], os.environ['DBPASSWORD'],
-    os.environ['DBHOST'], os.environ['DBNAME'],
-    )
+configString = "user=%s,password=%s,host=localhost,db=test" % (
+    os.environ['DBUSER'], os.environ['DBPASSWORD'])
 
 
 def random_uri():

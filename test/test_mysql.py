@@ -6,10 +6,8 @@ from n3_2_case import testN3Store
 from rdflib.graph import Graph
 
 import os
-configString = "user=%s,password=%s,host=%s,db=%s" % (
-    os.environ['DBUSER'], os.environ['DBPASSWORD'],
-    os.environ['DBHOST'], os.environ['DBNAME'],
-    )
+configString = "user=%s,password=%s,host=localhost,db=test" % (
+    os.environ['DBUSER'], os.environ['DBPASSWORD'])
 
 
 class MySQLGraphTestCase(graph_case.GraphTestCase):
