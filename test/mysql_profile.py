@@ -8,7 +8,8 @@ try:
 except ImportError, e:
     print "Can not test REGEX bits:", e
 from rdflib import *
-configString="user=gjh,password=50uthf0rk,host=localhost,db=test"
+configString = "user=%s,password=%s,host=localhost,db=test" % (
+    os.environ['DBUSER'], os.environ('DBPASSWORD'))
 
 def testRegex():
     g = Graph(store='MySQL')
