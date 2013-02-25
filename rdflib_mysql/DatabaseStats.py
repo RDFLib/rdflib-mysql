@@ -2,7 +2,6 @@
 
 from __future__ import generators
 
-import rdflib
 from rdflib.graph import ConjunctiveGraph
 from rdflib import plugin
 from rdflib.store import Store, NO_STORE, VALID_STORE
@@ -13,9 +12,6 @@ from rdfextras.utils.termutils import SUBJECT
 from rdfextras.utils.termutils import PREDICATE
 from rdfextras.utils.termutils import OBJECT
 from rdfextras.utils.termutils import CONTEXT
-
-plugin.register('MySQL', rdflib.store.Store,
-                        'rdfextras.store.MySQL', 'MySQL')
 
 import os.path
 import cPickle
