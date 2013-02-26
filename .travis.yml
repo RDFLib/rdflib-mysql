@@ -12,8 +12,8 @@ python:
     # - 3.2
     # - 3.3
 install:
-    - if [[ ${TRAVIS_PYTHON_VERSION%%.*} == '2' ]]; then pip install -r requirements-py2.txt --use-mirrors; fi
-    # - if [[ ${TRAVIS_PYTHON_VERSION%%.*} == '3' ]]; then pip install -r requirements-py3.txt --use-mirrors; fi
+    - if [[ ${TRAVIS_PYTHON_VERSION%%.*} == '2' ]]; then pip install -r requirements.py2.txt --use-mirrors; fi
+    # - if [[ ${TRAVIS_PYTHON_VERSION%%.*} == '3' ]]; then pip install -r requirements.py3.txt --use-mirrors; fi
     - python setup.py install
 before_script:
   - sh -c "if [ '$DB' = 'mysql' ]; then mysql -e 'create database IF NOT EXISTS test'; fi"
