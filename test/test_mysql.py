@@ -7,7 +7,8 @@ from rdflib.graph import Graph
 
 import os
 configString = "user=%s,password=%s,host=localhost,db=test" % (
-    os.environ['DBUSER'], os.environ['DBPASSWORD'])
+    os.environ.get('DBUSER', 'root'),
+    os.environ.get('DBPASSWORD', ''))
 
 
 class MySQLGraphTestCase(graph_case.GraphTestCase):
@@ -54,7 +55,7 @@ class MySQLStoreTests(unittest.TestCase):
 
 def test_MySQL_testN3_store():
     # raise SkipTest("Known issue")
-    testN3Store('MySQL', configString)
+    testN3Store('MySQL', configString=configString)
 
 
 MySQLGraphTestCase.storetest = True

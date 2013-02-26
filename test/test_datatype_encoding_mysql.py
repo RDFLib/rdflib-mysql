@@ -12,7 +12,8 @@ from rdflib.store import Store
 from rdfextras.store.FOPLRelationalModel.QuadSlot import normalizeValue
 import os
 configString = "user=%s,password=%s,host=localhost,db=test" % (
-    os.environ['DBUSER'], os.environ['DBPASSWORD'])
+    os.environ.get('DBUSER', 'root'),
+    os.environ.get('DBPASSWORD', ''))
 
 
 def test_dType_encoding():

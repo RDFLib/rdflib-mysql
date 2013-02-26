@@ -12,8 +12,10 @@ DEBUG = True
 EVALUATE = True
 DEBUG_PARSE = True
 STORE = 'MySQL'
+
 configString = "user=%s,password=%s,host=localhost,db=test" % (
-    os.environ['DBUSER'], os.environ['DBPASSWORD'])
+    os.environ.get('DBUSER', 'root'),
+    os.environ.get('DBPASSWORD', ''))
 
 datasize = '1ktriples'
 

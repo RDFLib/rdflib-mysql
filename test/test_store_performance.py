@@ -8,7 +8,8 @@ from rdflib import Graph
 from rdflib import URIRef
 
 configString = "user=%s,password=%s,host=localhost,db=test" % (
-    os.environ['DBUSER'], os.environ['DBPASSWORD'])
+    os.environ.get('DBUSER', 'root'),
+    os.environ.get('DBPASSWORD', ''))
 
 
 def random_uri():
@@ -33,7 +34,7 @@ class StoreTestCase(unittest.TestCase):
 
         self.graph = Graph(store=self.store)
         from test_mysql import configString
-        from rdfextras.store.MySQL import MySQL
+        from rdflib_mysql.MySQL import MySQL
         path = configString
         MySQL().destroy(path)
         self.path = path

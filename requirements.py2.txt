@@ -1,0 +1,6 @@
+isodate
+nose
+-e git://github.com/RDFLib/rdflib#egg=rdflib
+-e git://github.com/RDFLib/rdfextras#egg=rdfextras
+-e git://github.com/gjhiggins/html5libpy3#egg=html5lib
+MySQL-python
