@@ -1432,7 +1432,7 @@ class SQL(Store):
         try:
             kb.flushInsertions(self._db)
         except Exception, e:
-            logger.warn("Flush insertions raised exception %s" % e)
+            logger.debug("Failed to add triple; flush insertions raised exception %s" % e)
         self.note_modified()
 
     def addN(self, quads):
